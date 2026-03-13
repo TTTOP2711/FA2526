@@ -1756,6 +1756,9 @@
 
             // Overlay ausblenden
             document.getElementById('routeInfoOverlay').style.display = 'none';
+            
+            // WICHTIG: Route-Modus beenden!
+            routeMode = false;
 
             // Route-Daten vorbereiten
             tempMarkerData = {
@@ -1855,14 +1858,27 @@
         function closeModal() {
             document.getElementById('markerModal').classList.remove('active');
             
-            // Wenn Route-Modus aktiv ist und noch nicht beendet wurde, NICHT zurücksetzen
+            // Route-Modus komplett beenden
             if (routeMode) {
-                console.log('Modal geschlossen, Route-Modus bleibt aktiv');
-            } else {
-                tempMarkerData = null;
-                waitingForType = false;
-                clickedPosition = null;
+                console.log('❌ Route abgebrochen - Modal geschlossen');
+                routeMode = false;
+                routePoints = [];
+                
+                // Temporäre Linie entfernen
+                if (tempPolyline) {
+                    map.removeLayer(tempPolyline);
+                    tempPolyline = null;
+                }
+                
+                // Alle Punkt-Marker entfernen
+                tempRouteMarkers.forEach(marker => map.removeLayer(marker));
+                tempRouteMarkers = [];
             }
+            
+            // Alles zurücksetzen
+            tempMarkerData = null;
+            waitingForType = false;
+            clickedPosition = null;
         }
 
         function autoExpandTextarea(e) {
