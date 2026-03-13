@@ -1856,6 +1856,12 @@
         }
 
         function closeModal() {
+            console.log('🚪 closeModal() aufgerufen');
+            console.log('   routeMode:', routeMode);
+            console.log('   tempMarkerData:', tempMarkerData);
+            console.log('   tempPolyline:', tempPolyline);
+            console.log('   tempRouteMarkers:', tempRouteMarkers.length);
+            
             document.getElementById('markerModal').classList.remove('active');
             
             // Route-Vorschau entfernen (auch wenn routeMode bereits false ist)
@@ -1866,19 +1872,27 @@
                 
                 // Temporäre Linie entfernen
                 if (tempPolyline) {
+                    console.log('🗑️ Entferne tempPolyline');
                     map.removeLayer(tempPolyline);
                     tempPolyline = null;
+                } else {
+                    console.log('⚠️ tempPolyline ist null!');
                 }
                 
                 // Alle Punkt-Marker entfernen
+                console.log('🗑️ Entferne', tempRouteMarkers.length, 'Punkt-Marker');
                 tempRouteMarkers.forEach(marker => map.removeLayer(marker));
                 tempRouteMarkers = [];
+            } else {
+                console.log('ℹ️ Keine Route zu entfernen');
             }
             
             // Alles zurücksetzen
             tempMarkerData = null;
             waitingForType = false;
             clickedPosition = null;
+            
+            console.log('✅ closeModal() abgeschlossen');
         }
 
         function autoExpandTextarea(e) {
