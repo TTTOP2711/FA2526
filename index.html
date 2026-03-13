@@ -1858,8 +1858,8 @@
         function closeModal() {
             document.getElementById('markerModal').classList.remove('active');
             
-            // Route-Modus komplett beenden
-            if (routeMode) {
+            // Route-Vorschau entfernen (auch wenn routeMode bereits false ist)
+            if (routeMode || (tempMarkerData && tempMarkerData.isRoute)) {
                 console.log('❌ Route abgebrochen - Modal geschlossen');
                 routeMode = false;
                 routePoints = [];
