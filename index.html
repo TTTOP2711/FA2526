@@ -2077,80 +2077,89 @@
                 return;
             }
 
-            // Alte Vorschau-Marker entfernen
-            clearGroupPreview();
+            console.log('🗺️ showGroupOnMap() gestartet');
 
-            // Alle Elemente auf der Karte anzeigen
-            const allPoints = [];
-
-            currentGroup.items.forEach((item, index) => {
-                const typeConfig = markerTypes[item.type];
-                
-                if (item.isRoute && item.points) {
-                    // Strecke als Linie zeichnen
-                    const color = difficultyColors[item.difficulty] || '#8b5cf6';
-                    const polyline = L.polyline(item.points, {
-                        color: color,
-                        weight: 5,
-                        opacity: 0.8,
-                        dashArray: '10, 5' // Gestrichelt für Vorschau
-                    }).addTo(map);
-                    
-                    polyline.bindPopup(`
-                        <div style="min-width: 150px;">
-                            <h4 style="margin: 0 0 0.5rem 0; color: ${color};">
-                                ${typeConfig.icon} ${item.name}
-                            </h4>
-                            <p style="margin: 0; font-size: 0.85rem;">
-                                <strong>Typ:</strong> ${typeConfig.name}<br>
-                                ${item.difficulty ? `<strong>Schwierigkeit:</strong> ${getDifficultyLabel(item.difficulty)}<br>` : ''}
-                                <strong>Wegpunkte:</strong> ${item.points.length}
-                            </p>
-                        </div>
-                    `);
-                    
-                    tempGroupPreviewMarkers.push(polyline);
-                    item.points.forEach(p => allPoints.push(p));
-                } else {
-                    // Einzelner Marker
-                    const markerIcon = L.divIcon({
-                        html: `<div style="font-size: 2.5rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">${typeConfig.icon}</div>`,
-                        className: 'custom-marker',
-                        iconSize: [35, 35],
-                        iconAnchor: [17, 35]
-                    });
-
-                    const marker = L.marker([item.lat, item.lng], { icon: markerIcon }).addTo(map);
-                    
-                    marker.bindPopup(`
-                        <div style="min-width: 150px;">
-                            <h4 style="margin: 0 0 0.5rem 0; color: ${typeConfig.color};">
-                                ${typeConfig.icon} ${item.name}
-                            </h4>
-                            <p style="margin: 0; font-size: 0.85rem;">
-                                <strong>Typ:</strong> ${typeConfig.name}<br>
-                                ${item.difficulty ? `<strong>Schwierigkeit:</strong> ${getDifficultyLabel(item.difficulty)}<br>` : ''}
-                                📍 ${item.lat.toFixed(5)}, ${item.lng.toFixed(5)}
-                            </p>
-                        </div>
-                    `);
-                    
-                    tempGroupPreviewMarkers.push(marker);
-                    allPoints.push([item.lat, item.lng]);
-                }
-            });
-
-            // Karte auf alle Punkte zoomen
-            if (allPoints.length > 0) {
-                const bounds = L.latLngBounds(allPoints);
-                map.fitBounds(bounds, { 
-                    padding: [50, 50],
-                    maxZoom: 15
-                });
-            }
-
-            // Modal minimieren für bessere Sicht
+            // Modal minimieren ZUERST
             minimizeGroupModal();
+
+            // Kurze Verzögerung damit Modal-Animation fertig ist
+            setTimeout(() => {
+                console.log('⏱️ Timeout abgelaufen, füge Marker hinzu');
+                
+                // Alte Vorschau-Marker entfernen
+                clearGroupPreview();
+
+                // Alle Elemente auf der Karte anzeigen
+                const allPoints = [];
+
+                currentGroup.items.forEach((item, index) => {
+                    const typeConfig = markerTypes[item.type];
+                    
+                    if (item.isRoute && item.points) {
+                        // Strecke als Linie zeichnen
+                        const color = difficultyColors[item.difficulty] || '#8b5cf6';
+                        const polyline = L.polyline(item.points, {
+                            color: color,
+                            weight: 5,
+                            opacity: 0.8,
+                            dashArray: '10, 5' // Gestrichelt für Vorschau
+                        }).addTo(map);
+                        
+                        polyline.bindPopup(`
+                            <div style="min-width: 150px;">
+                                <h4 style="margin: 0 0 0.5rem 0; color: ${color};">
+                                    ${typeConfig.icon} ${item.name}
+                                </h4>
+                                <p style="margin: 0; font-size: 0.85rem;">
+                                    <strong>Typ:</strong> ${typeConfig.name}<br>
+                                    ${item.difficulty ? `<strong>Schwierigkeit:</strong> ${getDifficultyLabel(item.difficulty)}<br>` : ''}
+                                    <strong>Wegpunkte:</strong> ${item.points.length}
+                                </p>
+                            </div>
+                        `);
+                        
+                        tempGroupPreviewMarkers.push(polyline);
+                        item.points.forEach(p => allPoints.push(p));
+                    } else {
+                        // Einzelner Marker
+                        const markerIcon = L.divIcon({
+                            html: `<div style="font-size: 2.5rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">${typeConfig.icon}</div>`,
+                            className: 'custom-marker',
+                            iconSize: [35, 35],
+                            iconAnchor: [17, 35]
+                        });
+
+                        const marker = L.marker([item.lat, item.lng], { icon: markerIcon }).addTo(map);
+                        
+                        marker.bindPopup(`
+                            <div style="min-width: 150px;">
+                                <h4 style="margin: 0 0 0.5rem 0; color: ${typeConfig.color};">
+                                    ${typeConfig.icon} ${item.name}
+                                </h4>
+                                <p style="margin: 0; font-size: 0.85rem;">
+                                    <strong>Typ:</strong> ${typeConfig.name}<br>
+                                    ${item.difficulty ? `<strong>Schwierigkeit:</strong> ${getDifficultyLabel(item.difficulty)}<br>` : ''}
+                                    📍 ${item.lat.toFixed(5)}, ${item.lng.toFixed(5)}
+                                </p>
+                            </div>
+                        `);
+                        
+                        tempGroupPreviewMarkers.push(marker);
+                        allPoints.push([item.lat, item.lng]);
+                    }
+                });
+
+                console.log('✅', tempGroupPreviewMarkers.length, 'Marker hinzugefügt');
+
+                // Karte auf alle Punkte zoomen
+                if (allPoints.length > 0) {
+                    const bounds = L.latLngBounds(allPoints);
+                    map.fitBounds(bounds, { 
+                        padding: [50, 50],
+                        maxZoom: 15
+                    });
+                }
+            }, 150); // 150ms Verzögerung
         }
 
         function clearGroupPreview() {
