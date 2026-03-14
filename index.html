@@ -2179,6 +2179,7 @@
         function clearGroupPreview() {
             console.log('🧹 clearGroupPreview() aufgerufen');
             console.log('   Zu entfernende Marker:', tempGroupPreviewMarkers.length);
+            console.trace('📍 Call Stack:'); // Zeigt WO aufgerufen
             
             // Alle temporären Tourpaket-Vorschau-Marker entfernen
             tempGroupPreviewMarkers.forEach(item => {
