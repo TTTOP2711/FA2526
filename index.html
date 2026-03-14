@@ -1068,14 +1068,6 @@
             padding: 0 !important;
             opacity: 0 !important;
         }
-        
-        /* Autocomplete komplett deaktivieren */
-        input[type="text"],
-        input[type="email"],
-        textarea {
-            -webkit-appearance: none;
-            appearance: none;
-        }
     </style>
 </head>
 <body>
@@ -1219,6 +1211,24 @@
                     <button class="btn btn-cancel" onclick="cancelRouteDrawing()" style="width: 100%; background-color: #dc2626;">
                         ✕ Strecke abbrechen
                     </button>
+                </div>
+            </div>
+
+            <!-- Aktiver einzelner Marker Info (während Eingabe) -->
+            <div id="activeSingleMarkerInfo" class="active-group-info" style="display: none;">
+                <p class="group-title">📍 Neuer Marker</p>
+                
+                <!-- Marker-Info -->
+                <div class="sidebar-section" style="margin: 1rem 0;">
+                    <h4 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: var(--text-secondary);">ℹ️ Info:</h4>
+                    <div style="background: rgba(0,0,0,0.1); border-radius: 4px; padding: 0.5rem; font-size: 0.85rem;">
+                        <div style="margin-bottom: 0.3rem;">
+                            <strong>Typ:</strong> <span id="singleMarkerTypeDisplay">-</span>
+                        </div>
+                        <div style="margin-bottom: 0.3rem;">
+                            <strong>Position:</strong> <span id="singleMarkerPosDisplay">-</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1984,6 +1994,9 @@
             const textarea = document.getElementById('markerDescription');
             textarea.style.height = 'auto';
 
+            // Sidebar-Info für einzelnen Marker anzeigen
+            updateSingleMarkerInfo();
+
             // Buttons-Sichtbarkeit und Text setzen
             const addToGroupBtn = document.getElementById('addToGroupBtn');
             
@@ -2063,6 +2076,9 @@
             waitingForType = false;
             clickedPosition = null;
             
+            // Sidebar-Info verstecken
+            document.getElementById('activeSingleMarkerInfo').style.display = 'none';
+            
             console.log('✅ closeModal() abgeschlossen');
         }
 
@@ -2070,6 +2086,35 @@
             const textarea = e.target;
             textarea.style.height = 'auto';
             textarea.style.height = Math.min(textarea.scrollHeight, 300) + 'px';
+        }
+
+        function updateSingleMarkerInfo() {
+            if (!tempMarkerData || groupMode) {
+                document.getElementById('activeSingleMarkerInfo').style.display = 'none';
+                return;
+            }
+            
+            document.getElementById('activeSingleMarkerInfo').style.display = 'block';
+            
+            // Typ anzeigen
+            if (tempMarkerData.type) {
+                const typeConfig = markerTypes[tempMarkerData.type];
+                document.getElementById('singleMarkerTypeDisplay').textContent = 
+                    `${typeConfig.icon} ${typeConfig.name}`;
+            } else {
+                document.getElementById('singleMarkerTypeDisplay').textContent = '-';
+            }
+            
+            // Position anzeigen
+            if (tempMarkerData.lat && tempMarkerData.lng) {
+                document.getElementById('singleMarkerPosDisplay').textContent = 
+                    `${tempMarkerData.lat.toFixed(5)}, ${tempMarkerData.lng.toFixed(5)}`;
+            } else if (tempMarkerData.isRoute && tempMarkerData.points) {
+                document.getElementById('singleMarkerPosDisplay').textContent = 
+                    `Strecke mit ${tempMarkerData.points.length} Punkten`;
+            } else {
+                document.getElementById('singleMarkerPosDisplay').textContent = '-';
+            }
         }
 
         function addMarkerToGroup() {
