@@ -2106,9 +2106,16 @@
             showGroupOnMapRunning = true;
             console.log('🗺️ showGroupOnMap() gestartet - GESPERRT für 2 Sekunden');
 
-            // Modal KOMPLETT SCHLIEßEN (nicht minimieren!)
+            // Modal SCHLIEßEN
             document.getElementById('groupOverviewModal').classList.remove('active');
             console.log('🚪 Modal geschlossen');
+            
+            // Sidebar-Kontrollen ANZEIGEN
+            const activeGroupInfo = document.getElementById('activeGroupInfo');
+            if (activeGroupInfo) {
+                activeGroupInfo.style.display = 'block';
+                console.log('📋 Sidebar-Kontrollen angezeigt');
+            }
 
             // Kurze Verzögerung damit Modal geschlossen ist
             setTimeout(() => {
@@ -2164,14 +2171,18 @@
                         // Emoji als separater Marker ÜBER dem Circle
                         const iconMarker = L.marker([item.lat, item.lng], {
                             icon: L.divIcon({
-                                html: `<div style="font-size: 1.8rem; text-shadow: 1px 1px 2px white, -1px -1px 2px white;">${typeConfig.icon}</div>`,
+                                html: `<div style="font-size: 1.8rem; text-shadow: 1px 1px 2px white, -1px -1px 2px white, 1px -1px 2px white, -1px 1px 2px white; pointer-events: none;">${typeConfig.icon}</div>`,
                                 className: '',
                                 iconSize: [30, 30],
                                 iconAnchor: [15, 30]
                             }),
-                            interactive: false, // Kein Klick auf Icon
                             zIndexOffset: 1000  // Immer oben
                         }).addTo(map);
+                        
+                        // Klick auf Icon soll Circle-Popup öffnen
+                        iconMarker.on('click', () => {
+                            circleMarker.openPopup();
+                        });
                         
                         circleMarker.bindPopup(`
                             <div style="min-width: 150px;">
@@ -2220,12 +2231,13 @@
             console.trace('📍 Call Stack:'); // Zeigt WO aufgerufen
             
             // Alle temporären Tourpaket-Vorschau-Marker entfernen
-            tempGroupPreviewMarkers.forEach(item => {
+            tempGroupPreviewMarkers.forEach((item, index) => {
+                console.log('   🗑️ Entferne Marker', index, ':', item.constructor.name);
                 map.removeLayer(item);
             });
             tempGroupPreviewMarkers = [];
             
-            console.log('✅ clearGroupPreview() abgeschlossen');
+            console.log('✅ clearGroupPreview() abgeschlossen - Array geleert');
         }
 
         function minimizeGroupModal() {
