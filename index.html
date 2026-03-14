@@ -2149,19 +2149,22 @@
                         tempGroupPreviewMarkers.push(polyline);
                         item.points.forEach(p => allPoints.push(p));
                     } else {
-                        // Einzelner Marker
-                        const markerIcon = L.divIcon({
-                            html: `<div style="font-size: 2.5rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">${typeConfig.icon}</div>`,
-                            className: 'custom-marker',
-                            iconSize: [35, 35],
-                            iconAnchor: [17, 35]
-                        });
-
-                        const marker = L.marker([item.lat, item.lng], { icon: markerIcon }).addTo(map);
+                        // Einzelner Marker - VERWENDE CIRCLEMARKER für garantierte Sichtbarkeit!
+                        const markerColor = typeConfig.color || '#22c55e';
                         
-                        marker.bindPopup(`
+                        const circleMarker = L.circleMarker([item.lat, item.lng], {
+                            radius: 15,
+                            fillColor: markerColor,
+                            color: '#ffffff',
+                            weight: 3,
+                            opacity: 1,
+                            fillOpacity: 0.8
+                        }).addTo(map);
+                        
+                        // Icon als Text im Popup
+                        circleMarker.bindPopup(`
                             <div style="min-width: 150px;">
-                                <h4 style="margin: 0 0 0.5rem 0; color: ${typeConfig.color};">
+                                <h4 style="margin: 0 0 0.5rem 0; color: ${markerColor};">
                                     ${typeConfig.icon} ${item.name}
                                 </h4>
                                 <p style="margin: 0; font-size: 0.85rem;">
@@ -2172,7 +2175,9 @@
                             </div>
                         `);
                         
-                        tempGroupPreviewMarkers.push(marker);
+                        console.log('🔵 CircleMarker hinzugefügt:', item.name, 'bei', item.lat, item.lng);
+                        
+                        tempGroupPreviewMarkers.push(circleMarker);
                         allPoints.push([item.lat, item.lng]);
                     }
                 });
