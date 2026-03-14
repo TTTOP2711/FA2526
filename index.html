@@ -2106,10 +2106,11 @@
             showGroupOnMapRunning = true;
             console.log('🗺️ showGroupOnMap() gestartet - GESPERRT für 2 Sekunden');
 
-            // Modal minimieren ZUERST
-            minimizeGroupModal();
+            // Modal KOMPLETT SCHLIEßEN (nicht minimieren!)
+            document.getElementById('groupOverviewModal').classList.remove('active');
+            console.log('🚪 Modal geschlossen');
 
-            // Kurze Verzögerung damit Modal-Animation fertig ist
+            // Kurze Verzögerung damit Modal geschlossen ist
             setTimeout(() => {
                 console.log('⏱️ Timeout abgelaufen, füge Marker hinzu');
                 
