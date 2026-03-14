@@ -815,27 +815,11 @@
             border-radius: 8px;
             margin-bottom: 1rem;
             letter-spacing: 0.5rem;
-            background-color: white !important;
-            color: #333 !important;
-            -webkit-text-fill-color: #333 !important;
-            -webkit-opacity: 1 !important;
-            opacity: 1 !important;
         }
 
         .admin-code-input:focus {
             outline: none;
             border-color: var(--primary-green);
-            background-color: white !important;
-            color: #333 !important;
-            -webkit-text-fill-color: #333 !important;
-        }
-        
-        /* Autofill für Admin-Input */
-        .admin-code-input:-webkit-autofill,
-        .admin-code-input:-webkit-autofill:hover,
-        .admin-code-input:-webkit-autofill:focus {
-            -webkit-text-fill-color: #333 !important;
-            -webkit-box-shadow: 0 0 0 1000px white inset !important;
         }
 
         /* Admin Dashboard */
@@ -1004,11 +988,6 @@
             border: 2px solid #ddd;
             border-radius: 5px;
             font-size: 1rem;
-            background-color: white !important;
-            color: #333 !important;
-            -webkit-text-fill-color: #333 !important;
-            -webkit-opacity: 1 !important;
-            opacity: 1 !important;
         }
 
         .form-group input:focus,
@@ -1016,21 +995,6 @@
         .form-group textarea:focus {
             outline: none;
             border-color: var(--secondary-green);
-            background-color: white !important;
-            color: #333 !important;
-            -webkit-text-fill-color: #333 !important;
-            -webkit-opacity: 1 !important;
-            opacity: 1 !important;
-        }
-        
-        /* Autofill-States fixen */
-        .form-group input:-webkit-autofill,
-        .form-group input:-webkit-autofill:hover,
-        .form-group input:-webkit-autofill:focus,
-        .form-group input:-webkit-autofill:active {
-            -webkit-text-fill-color: #333 !important;
-            -webkit-box-shadow: 0 0 0 1000px white inset !important;
-            box-shadow: 0 0 0 1000px white inset !important;
         }
 
         .form-group textarea {
@@ -1090,40 +1054,6 @@
             }
         }
 
-        /* Browser Accessibility-Icons ausblenden - AGGRESSIV */
-        input::-webkit-contacts-auto-fill-button,
-        input::-webkit-credentials-auto-fill-button,
-        input::-webkit-textfield-decoration-container {
-            visibility: hidden !important;
-            display: none !important;
-            pointer-events: none !important;
-            position: absolute !important;
-            height: 0 !important;
-            width: 0 !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            opacity: 0 !important;
-        }
-        
-        /* SUPER-AGGRESSIVE: ALLE INPUTS MÜSSEN SCHWARZEN TEXT HABEN */
-        input[type="text"],
-        input[type="email"],
-        input[type="password"],
-        textarea,
-        select,
-        .form-group input,
-        .form-group textarea,
-        .form-group select,
-        .modal input,
-        .modal textarea,
-        .modal select,
-        #markerName,
-        #markerDescription,
-        #adminCodeInput {
-            color: #333 !important;
-            -webkit-text-fill-color: #333 !important;
-            caret-color: #333 !important;
-        }
     </style>
 </head>
 <body>
@@ -1324,7 +1254,7 @@
 
                 <div class="form-group">
                     <label for="markerName">Name/Titel</label>
-                    <input type="text" id="markerName" name="marker-name-field-unique" required placeholder="z.B. Flow Trail Waldweg" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="color: #333 !important; -webkit-text-fill-color: #333 !important; background-color: white !important;">
+                    <input type="text" id="markerName" name="marker-name-field-unique" required placeholder="z.B. Flow Trail Waldweg" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
                 </div>
 
                 <div class="form-group" id="difficultyGroup" style="display: none;">
@@ -1339,7 +1269,7 @@
 
                 <div class="form-group">
                     <label for="markerDescription">Beschreibung</label>
-                    <textarea id="markerDescription" rows="3" placeholder="Beschreibe die Strecke..." autocomplete="off" style="color: #333 !important; -webkit-text-fill-color: #333 !important; background-color: white !important;"></textarea>
+                    <textarea id="markerDescription" rows="3" placeholder="Beschreibe die Strecke..." autocomplete="off"></textarea>
                 </div>
 
                 <div class="form-group">
@@ -1349,14 +1279,14 @@
                             📍 Automatisch ermitteln
                         </button>
                     </label>
-                    <input type="text" id="markerAddress" placeholder="z.B. Waldstraße 12, 12345 Berlin" autocomplete="off">
+                    <input type="text" id="markerAddress" placeholder="z.B. Waldstraße 12, 12345 Berlin" autocomplete="off" style="color: #333 !important; -webkit-text-fill-color: #333 !important; background-color: white !important;">
                     <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 0.5rem; margin-top: 0.5rem;">
-                        <input type="text" id="markerStreet" placeholder="Straße + Nr." autocomplete="off">
-                        <input type="text" id="markerPostcode" placeholder="PLZ" autocomplete="off">
+                        <input type="text" id="markerStreet" placeholder="Straße + Nr." autocomplete="off" style="color: #333 !important; -webkit-text-fill-color: #333 !important; background-color: white !important;">
+                        <input type="text" id="markerPostcode" placeholder="PLZ" autocomplete="off" style="color: #333 !important; -webkit-text-fill-color: #333 !important; background-color: white !important;">
                     </div>
                     <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 0.5rem; margin-top: 0.5rem;">
-                        <input type="text" id="markerCity" placeholder="Stadt/Ort" autocomplete="off">
-                        <input type="text" id="markerCountry" placeholder="Land" value="Deutschland" autocomplete="off">
+                        <input type="text" id="markerCity" placeholder="Stadt/Ort" autocomplete="off" style="color: #333 !important; -webkit-text-fill-color: #333 !important; background-color: white !important;">
+                        <input type="text" id="markerCountry" placeholder="Land" value="Deutschland" autocomplete="off" style="color: #333 !important; -webkit-text-fill-color: #333 !important; background-color: white !important;">
                     </div>
                 </div>
 
@@ -1378,12 +1308,12 @@
             
             <div class="form-group">
                 <label for="groupNameInput">Tourpaket-Name</label>
-                <input type="text" id="groupNameInput" placeholder="z.B. Waldtrail Süd" autocomplete="off" style="color: #333 !important; -webkit-text-fill-color: #333 !important; background-color: white !important;">
+                <input type="text" id="groupNameInput" placeholder="z.B. Waldtrail Süd" autocomplete="off">
             </div>
 
             <div class="form-group">
                 <label for="groupDescriptionInput">Beschreibung (optional)</label>
-                <textarea id="groupDescriptionInput" rows="3" placeholder="Beschreibe dieses Tourpaket..." autocomplete="off" style="color: #333 !important; -webkit-text-fill-color: #333 !important; background-color: white !important;"></textarea>
+                <textarea id="groupDescriptionInput" rows="3" placeholder="Beschreibe dieses Tourpaket..." autocomplete="off"></textarea>
             </div>
 
             <div class="sidebar-section">
@@ -1408,7 +1338,7 @@
     <div class="admin-login-overlay" id="adminLoginOverlay">
         <div class="admin-login-box">
             <h2>🔐 Admin-Bereich</h2>
-            <input type="password" class="admin-code-input" id="adminCodeInput" placeholder="Code eingeben" maxlength="5" autocomplete="off" style="color: #333 !important; -webkit-text-fill-color: #333 !important; background-color: white !important;">
+            <input type="password" class="admin-code-input" id="adminCodeInput" placeholder="Code eingeben" maxlength="5" autocomplete="off">
             <button class="btn btn-primary" onclick="checkAdminCode()">🔓 Entsperren</button>
             <button class="btn btn-cancel" onclick="closeAdminLogin()">Abbrechen</button>
         </div>
