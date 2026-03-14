@@ -1104,6 +1104,26 @@
             padding: 0 !important;
             opacity: 0 !important;
         }
+        
+        /* SUPER-AGGRESSIVE: ALLE INPUTS MÜSSEN SCHWARZEN TEXT HABEN */
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        textarea,
+        select,
+        .form-group input,
+        .form-group textarea,
+        .form-group select,
+        .modal input,
+        .modal textarea,
+        .modal select,
+        #markerName,
+        #markerDescription,
+        #adminCodeInput {
+            color: #333 !important;
+            -webkit-text-fill-color: #333 !important;
+            caret-color: #333 !important;
+        }
     </style>
 </head>
 <body>
