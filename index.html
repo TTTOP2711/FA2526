@@ -1143,9 +1143,21 @@
             <div id="activeGroupInfo" class="active-group-info" style="display: none;">
                 <p class="group-title">🔗 Aktives Tourpaket: <span id="activeGroupNameSidebar"></span></p>
                 <p class="group-count"><span id="groupItemCount">0</span> Element(e) in diesem Tourpaket</p>
+                
+                <!-- Element-Liste in Sidebar -->
+                <div class="sidebar-section" style="margin: 1rem 0;">
+                    <h4 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: var(--text-secondary);">📍 Elemente:</h4>
+                    <div id="groupItemsListSidebar" style="max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.1); border-radius: 4px; padding: 0.5rem;">
+                        <!-- Wird dynamisch befüllt -->
+                    </div>
+                </div>
+                
                 <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                     <button class="btn btn-primary" onclick="addToCurrentGroup()" style="width: 100%;">
                         📦 Tourpaket verwalten
+                    </button>
+                    <button class="btn btn-primary" onclick="sendGroupFromSidebar()" style="width: 100%; background-color: var(--accent-orange);">
+                        📧 Tourpaket senden
                     </button>
                     <button class="btn btn-cancel" onclick="cancelCurrentGroup()" style="width: 100%; background-color: #dc2626;">
                         🗑️ Paket löschen
@@ -2348,6 +2360,25 @@
                 document.getElementById('activeGroupInfo').style.display = 'block';
                 document.getElementById('activeGroupNameSidebar').textContent = currentGroup.name;
                 document.getElementById('groupItemCount').textContent = currentGroup.items.length;
+                
+                // Element-Liste in Sidebar aktualisieren
+                const sidebarList = document.getElementById('groupItemsListSidebar');
+                if (sidebarList && currentGroup.items.length > 0) {
+                    sidebarList.innerHTML = currentGroup.items.map((item, idx) => {
+                        const typeConfig = markerTypes[item.type];
+                        const diffLabel = item.difficulty ? getDifficultyLabel(item.difficulty) : '';
+                        return `
+                            <div style="padding: 0.4rem; background: rgba(255,255,255,0.1); border-radius: 4px; margin-bottom: 0.3rem; font-size: 0.85rem;">
+                                <div style="font-weight: bold;">${idx + 1}. ${typeConfig.icon} ${item.name}</div>
+                                <div style="color: var(--text-secondary); font-size: 0.75rem;">
+                                    ${typeConfig.name}${diffLabel ? ` • ${diffLabel}` : ''}
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else if (sidebarList) {
+                    sidebarList.innerHTML = '<p style="color: var(--text-secondary); font-size: 0.8rem; text-align: center; padding: 1rem;">Noch keine Elemente</p>';
+                }
             } else {
                 document.getElementById('activeGroupInfo').style.display = 'none';
             }
@@ -2371,6 +2402,17 @@
             updateGroupUI();
             
             alert('✅ Tourpaket wurde abgebrochen.');
+        }
+
+        function sendGroupFromSidebar() {
+            // Öffne Modal zum Senden (wie "Tourpaket verwalten" → "Senden")
+            if (!currentGroup || currentGroup.items.length === 0) {
+                alert('⚠️ Keine Elemente im Tourpaket!');
+                return;
+            }
+            
+            // Rufe die existierende sendGroupFromModal Funktion auf
+            sendGroupFromModal();
         }
 
         function finishGroup() {
