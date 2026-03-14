@@ -2071,13 +2071,27 @@
             }).join('');
         }
 
+        // Debounce-Variable für showGroupOnMap
+        let showGroupOnMapTimeout = null;
+
         function showGroupOnMap() {
             if (!currentGroup || currentGroup.items.length === 0) {
                 alert('⚠️ Keine Elemente im Tourpaket!');
                 return;
             }
 
+            // DEBOUNCE: Verhindere doppelte Aufrufe innerhalb 300ms
+            if (showGroupOnMapTimeout) {
+                console.log('⚠️ showGroupOnMap bereits aktiv - ignoriere doppelten Aufruf');
+                return;
+            }
+
             console.log('🗺️ showGroupOnMap() gestartet');
+
+            // Sperre für 300ms
+            showGroupOnMapTimeout = setTimeout(() => {
+                showGroupOnMapTimeout = null;
+            }, 300);
 
             // Modal minimieren ZUERST
             minimizeGroupModal();
@@ -2163,11 +2177,16 @@
         }
 
         function clearGroupPreview() {
+            console.log('🧹 clearGroupPreview() aufgerufen');
+            console.log('   Zu entfernende Marker:', tempGroupPreviewMarkers.length);
+            
             // Alle temporären Tourpaket-Vorschau-Marker entfernen
             tempGroupPreviewMarkers.forEach(item => {
                 map.removeLayer(item);
             });
             tempGroupPreviewMarkers = [];
+            
+            console.log('✅ clearGroupPreview() abgeschlossen');
         }
 
         function minimizeGroupModal() {
@@ -3888,11 +3907,25 @@
             }
         }
 
+        // Debounce-Variable für previewTourpaket
+        let previewTourpaketTimeout = null;
+
         function previewTourpaket(id) {
             const suggestion = markerSuggestions.find(s => s.id === id);
             if (!suggestion || suggestion.type !== 'tourpaket') return;
 
+            // DEBOUNCE: Verhindere doppelte Aufrufe innerhalb 300ms
+            if (previewTourpaketTimeout) {
+                console.log('⚠️ previewTourpaket bereits aktiv - ignoriere doppelten Aufruf');
+                return;
+            }
+
             console.log('🔍 Tourpaket-Vorschau:', suggestion.name, suggestion.items.length, 'Elemente');
+
+            // Sperre für 300ms
+            previewTourpaketTimeout = setTimeout(() => {
+                previewTourpaketTimeout = null;
+            }, 300);
 
             currentPreviewId = id;
 
