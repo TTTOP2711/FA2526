@@ -1254,7 +1254,7 @@
 
                 <div class="form-group">
                     <label for="markerName">Name/Titel</label>
-                    <input type="text" id="markerName" name="marker-name-field-unique" required placeholder="z.B. Flow Trail Waldweg" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                    <input type="text" id="markerName" name="marker-name-field-unique" required placeholder="z.B. Flow Trail Waldweg" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-form-type="other">
                 </div>
 
                 <div class="form-group" id="difficultyGroup" style="display: none;">
@@ -1501,9 +1501,12 @@
         let tourpaketHighlightLayers = []; // Temporäre Hervorhebungs-Layer
         
         // Admin-System
-        const ADMIN_CODE = '88888';
+        // Admin-Passwort als SHA-256 Hash (Original: "88888")
+        // Für Sicherheit: Passwort wird gehasht gespeichert statt Klartext
+        const ADMIN_CODE_HASH = '48a1447535ffb3b0c1b058cdbdee4d2735e5cca047f6bf8b0e6abc7f1b3e9f7e';
         let isAdminLoggedIn = false;
         let markerSuggestions = []; // Vorschläge von Nutzern
+        let editingMarkerId = null; // ID des Markers der gerade bearbeitet wird
         
         const ADMIN_EMAIL = 'Lenardo.krueger@icloud.com';
 
@@ -2023,6 +2026,16 @@
                     document.getElementById('difficultyGroup').style.display = 'none';
                 }
             }
+            
+            // Anti-Safari-Autofill: Fokussiere Feld kurz nach Modal-Öffnung
+            setTimeout(() => {
+                const nameInput = document.getElementById('markerName');
+                if (nameInput) {
+                    nameInput.focus();
+                    nameInput.blur();
+                    setTimeout(() => nameInput.focus(), 50);
+                }
+            }, 100);
         }
 
         function closeModal() {
@@ -2061,6 +2074,22 @@
             tempMarkerData = null;
             waitingForType = false;
             clickedPosition = null;
+            
+            // Edit-Modus zurücksetzen
+            if (editingMarkerId) {
+                editingMarkerId = null;
+                
+                // Button zurücksetzen
+                const sendBtn = document.getElementById('sendEmailBtn');
+                sendBtn.textContent = '📧 Jetzt senden';
+                sendBtn.onclick = () => sendMarkerEmail();
+                
+                // Modal-Titel zurücksetzen
+                const modalTitle = document.querySelector('#markerModal h2');
+                if (modalTitle) {
+                    modalTitle.textContent = 'Marker-Details eingeben';
+                }
+            }
             
             // Sidebar-Info verstecken
             document.getElementById('activeSingleMarkerInfo').style.display = 'none';
@@ -3708,10 +3737,19 @@
             document.getElementById('adminLoginOverlay').classList.remove('active');
         }
 
-        function checkAdminCode() {
+        // SHA-256 Hash-Funktion für Passwort-Sicherheit
+        async function sha256(str) {
+            const buffer = new TextEncoder().encode(str);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function checkAdminCode() {
             const code = document.getElementById('adminCodeInput').value;
+            const codeHash = await sha256(code);
             
-            if (code === ADMIN_CODE) {
+            if (codeHash === ADMIN_CODE_HASH) {
                 isAdminLoggedIn = true;
                 closeAdminLogin();
                 openAdminDashboard();
@@ -3737,7 +3775,16 @@
             document.querySelectorAll('.admin-tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.admin-tab-content').forEach(content => content.classList.remove('active'));
             
-            event.target.classList.add('active');
+            // Tab-Button aktivieren (mit Fehlerbehandlung für programmatische Aufrufe)
+            const tabButton = Array.from(document.querySelectorAll('.admin-tab')).find(btn => 
+                btn.textContent.includes(tabName === 'suggestions' ? 'Vorschläge' : 
+                                         tabName === 'markers' ? 'Alle Marker' : 
+                                         tabName === 'stats' ? 'Statistiken' : 'Backup')
+            );
+            if (tabButton) {
+                tabButton.classList.add('active');
+            }
+            
             document.getElementById('tab-' + tabName).classList.add('active');
             
             if (tabName === 'markers') {
@@ -3922,10 +3969,154 @@
                         </div>
                         <div class="marker-item-coords">${coordDisplay}</div>
                         ${approvalDate ? `<div style="font-size: 0.75rem; color: #999; margin-top: 0.3rem;">✓ ${approvalDate}</div>` : ''}
-                        <button class="delete-marker-btn" onclick="deleteMarker(${m.id})" style="width: 100%; margin-top: 0.5rem;">🗑️ Löschen</button>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.5rem;">
+                            <button class="btn btn-secondary" onclick="editMarker(${m.id})" style="padding: 0.5rem; font-size: 0.85rem;">✏️ Bearbeiten</button>
+                            <button class="delete-marker-btn" onclick="deleteMarker(${m.id})" style="padding: 0.5rem; font-size: 0.85rem;">🗑️ Löschen</button>
+                        </div>
                     </div>
                 `;
             }).join('');
+        }
+
+        function editMarker(id) {
+            const marker = markers.find(m => m.id === id);
+            if (!marker) {
+                alert('Marker nicht gefunden!');
+                return;
+            }
+
+            // Setze Edit-Modus
+            editingMarkerId = id;
+
+            // Admin-Dashboard schließen
+            closeAdminDashboard();
+
+            // Modal öffnen und Felder vorausfüllen
+            document.getElementById('markerModal').classList.add('active');
+            
+            // Name und Beschreibung
+            document.getElementById('markerName').value = marker.name || '';
+            document.getElementById('markerDescription').value = marker.description || '';
+
+            // Typ setzen
+            tempMarkerData = { ...marker }; // Kopie des Markers
+            const typeConfig = markerTypes[marker.type];
+            document.getElementById('selectedTypeLabel').textContent = `${typeConfig.icon} ${typeConfig.name}`;
+
+            // Schwierigkeit setzen falls vorhanden
+            if (['startpoint', 'route'].includes(marker.type)) {
+                document.getElementById('difficultyGroup').style.display = 'block';
+                if (marker.difficulty) {
+                    document.getElementById('markerDifficulty').value = marker.difficulty;
+                }
+            } else {
+                document.getElementById('difficultyGroup').style.display = 'none';
+            }
+
+            // Buttons anpassen für Edit-Modus
+            const sendBtn = document.getElementById('sendEmailBtn');
+            const addGroupBtn = document.getElementById('addToGroupBtn');
+            
+            sendBtn.style.display = 'inline-block';
+            sendBtn.textContent = '💾 Änderungen speichern';
+            sendBtn.onclick = () => saveMarkerChanges();
+            
+            addGroupBtn.style.display = 'none';
+            
+            // Modal-Titel ändern
+            const modalTitle = document.querySelector('#markerModal h2');
+            if (modalTitle) {
+                modalTitle.textContent = '✏️ Marker bearbeiten';
+            }
+
+            // Sidebar für einzelnen Marker aktualisieren
+            updateSingleMarkerInfo();
+        }
+
+        function saveMarkerChanges() {
+            if (!editingMarkerId) return;
+
+            const name = document.getElementById('markerName').value.trim();
+            const description = document.getElementById('markerDescription').value.trim();
+            const difficulty = document.getElementById('markerDifficulty').value;
+
+            if (!name) {
+                alert('⚠️ Bitte gib einen Namen ein!');
+                return;
+            }
+
+            // Marker in Array finden und aktualisieren
+            const markerIndex = markers.findIndex(m => m.id === editingMarkerId);
+            if (markerIndex === -1) {
+                alert('❌ Marker nicht gefunden!');
+                return;
+            }
+
+            // Update Marker-Daten
+            markers[markerIndex].name = name;
+            markers[markerIndex].description = description;
+            if (['startpoint', 'route'].includes(markers[markerIndex].type)) {
+                markers[markerIndex].difficulty = difficulty;
+            }
+
+            // In Firebase aktualisieren
+            if (db) {
+                const markerDoc = markers[markerIndex];
+                const updateData = {
+                    name: name,
+                    description: description
+                };
+                
+                if (['startpoint', 'route'].includes(markerDoc.type)) {
+                    updateData.difficulty = difficulty;
+                }
+
+                db.collection('markers').doc(markerDoc.id.toString()).update(updateData)
+                    .then(() => {
+                        // Lokalen Storage aktualisieren
+                        saveMarkersToStorage();
+                        
+                        // Karte aktualisieren
+                        updateMap();
+                        updateMarkerList();
+                        
+                        // Modal schließen
+                        closeModal();
+                        
+                        // Edit-Modus beenden
+                        editingMarkerId = null;
+                        
+                        // Zurück zum Admin-Dashboard
+                        openAdminDashboard();
+                        switchAdminTab('markers');
+                        
+                        alert('✅ Marker erfolgreich aktualisiert!');
+                    })
+                    .catch(error => {
+                        console.error('Fehler beim Aktualisieren:', error);
+                        
+                        // Auch bei Fehler lokal speichern
+                        saveMarkersToStorage();
+                        updateMap();
+                        updateMarkerList();
+                        closeModal();
+                        editingMarkerId = null;
+                        openAdminDashboard();
+                        switchAdminTab('markers');
+                        
+                        alert('⚠️ Lokal aktualisiert, aber Firebase-Fehler:\n' + error.message);
+                    });
+            } else {
+                // Offline: Nur lokal speichern
+                saveMarkersToStorage();
+                updateMap();
+                updateMarkerList();
+                closeModal();
+                editingMarkerId = null;
+                openAdminDashboard();
+                switchAdminTab('markers');
+                alert('✅ Marker lokal aktualisiert!');
+            }
         }
 
         function approveSuggestion(id) {
