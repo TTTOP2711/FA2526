@@ -2072,7 +2072,7 @@
         }
 
         // Debounce-Variable für showGroupOnMap
-        let showGroupOnMapTimeout = null;
+        let showGroupOnMapRunning = false;
 
         function showGroupOnMap() {
             if (!currentGroup || currentGroup.items.length === 0) {
@@ -2080,18 +2080,14 @@
                 return;
             }
 
-            // DEBOUNCE: Verhindere doppelte Aufrufe innerhalb 300ms
-            if (showGroupOnMapTimeout) {
-                console.log('⚠️ showGroupOnMap bereits aktiv - ignoriere doppelten Aufruf');
+            // Verhindere doppelte Ausführung
+            if (showGroupOnMapRunning) {
+                console.log('⚠️ showGroupOnMap läuft bereits - ignoriere');
                 return;
             }
 
-            console.log('🗺️ showGroupOnMap() gestartet');
-
-            // Sperre für 300ms
-            showGroupOnMapTimeout = setTimeout(() => {
-                showGroupOnMapTimeout = null;
-            }, 300);
+            showGroupOnMapRunning = true;
+            console.log('🗺️ showGroupOnMap() gestartet - GESPERRT');
 
             // Modal minimieren ZUERST
             minimizeGroupModal();
@@ -2173,6 +2169,12 @@
                         maxZoom: 15
                     });
                 }
+
+                // Nach 500ms entsperren
+                setTimeout(() => {
+                    showGroupOnMapRunning = false;
+                    console.log('🔓 showGroupOnMap ENTSPERRT');
+                }, 500);
             }, 150); // 150ms Verzögerung
         }
 
@@ -3909,24 +3911,20 @@
         }
 
         // Debounce-Variable für previewTourpaket
-        let previewTourpaketTimeout = null;
+        let previewTourpaketRunning = false;
 
         function previewTourpaket(id) {
             const suggestion = markerSuggestions.find(s => s.id === id);
             if (!suggestion || suggestion.type !== 'tourpaket') return;
 
-            // DEBOUNCE: Verhindere doppelte Aufrufe innerhalb 300ms
-            if (previewTourpaketTimeout) {
-                console.log('⚠️ previewTourpaket bereits aktiv - ignoriere doppelten Aufruf');
+            // Verhindere doppelte Ausführung
+            if (previewTourpaketRunning) {
+                console.log('⚠️ previewTourpaket läuft bereits - ignoriere');
                 return;
             }
 
-            console.log('🔍 Tourpaket-Vorschau:', suggestion.name, suggestion.items.length, 'Elemente');
-
-            // Sperre für 300ms
-            previewTourpaketTimeout = setTimeout(() => {
-                previewTourpaketTimeout = null;
-            }, 300);
+            previewTourpaketRunning = true;
+            console.log('🔍 Tourpaket-Vorschau:', suggestion.name, suggestion.items.length, 'Elemente - GESPERRT');
 
             currentPreviewId = id;
 
@@ -4032,6 +4030,12 @@
                         ← Zurück zum Admin
                     </button>
                 `;
+
+                // Nach 500ms entsperren
+                setTimeout(() => {
+                    previewTourpaketRunning = false;
+                    console.log('🔓 previewTourpaket ENTSPERRT');
+                }, 500);
             }, 100);
         }
 
