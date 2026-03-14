@@ -1259,7 +1259,7 @@
             </div>
 
             <div class="form-buttons">
-                <button type="button" class="btn btn-primary" onclick="showGroupOnMap()" style="background-color: #3b82f6;">🗺️ Auf Karte anzeigen</button>
+                <button type="button" id="showGroupOnMapBtn" class="btn btn-primary" style="background-color: #3b82f6;">🗺️ Auf Karte anzeigen</button>
             </div>
 
             <div class="form-buttons" style="margin-top: 0.5rem;">
@@ -1543,6 +1543,23 @@
             document.getElementById('markerModal').addEventListener('click', (e) => {
                 if (e.target.id === 'markerModal') closeModal();
             });
+
+            // Event-Listener für "Auf Karte anzeigen" Button
+            const showGroupBtn = document.getElementById('showGroupOnMapBtn');
+            if (showGroupBtn) {
+                // Entferne alte Listener falls vorhanden
+                showGroupBtn.replaceWith(showGroupBtn.cloneNode(true));
+                const newShowGroupBtn = document.getElementById('showGroupOnMapBtn');
+                
+                newShowGroupBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🖱️ Button geklickt - Event-Listener');
+                    showGroupOnMap();
+                }, { once: false, capture: false });
+                
+                console.log('✅ showGroupOnMap Event-Listener registriert');
+            }
 
             const textarea = document.getElementById('markerDescription');
             if (textarea) {
