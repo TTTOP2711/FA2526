@@ -15,45 +15,54 @@
             box-sizing: border-box;
         }
 
+        /* ==================== CSS CUSTOM PROPERTIES (VARIABLEN) ==================== */
+        /* NOTIZ: CSS Variables ermöglichen wiederverwendbare Werte im gesamten Stylesheet
+           Vorteil: Zentrale Definition der Farben → leicht änderbar, konsistentes Design
+           :root = globaler Scope (verfügbar in allen Elementen)
+           Verwendung: var(--variable-name) z.B. color: var(--primary-green); */
         :root {
-            --primary-green: #2d5016;
-            --secondary-green: #4a7c2c;
-            --accent-orange: #d97316;
-            --earth-brown: #6b4423;
-            --light-beige: #f4f1ea;
-            --dark-gray: #2c2c2c;
+            --primary-green: #2d5016;       /* Hauptfarbe: Dunkles Grün (MTB/Natur-Theme) */
+            --secondary-green: #4a7c2c;     /* Sekundärfarbe: Helleres Grün */
+            --accent-orange: #d97316;       /* Akzentfarbe: Orange (Warnung/Highlight) */
+            --earth-brown: #6b4423;         /* Erdton: Braun */
+            --light-beige: #f4f1ea;         /* Hintergrundfarbe: Helles Beige */
+            --dark-gray: #2c2c2c;           /* Textfarbe: Dunkelgrau (besser lesbar als Schwarz) */
             --white: #ffffff;
-            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
-            --shadow-md: 0 4px 8px rgba(0,0,0,0.15);
-            --shadow-lg: 0 8px 16px rgba(0,0,0,0.2);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);     /* Kleine Schatten für Tiefe */
+            --shadow-md: 0 4px 8px rgba(0,0,0,0.15);    /* Mittlere Schatten */
+            --shadow-lg: 0 8px 16px rgba(0,0,0,0.2);    /* Große Schatten */
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--light-beige);
+            background-color: var(--light-beige);       /* Nutzung der CSS Variable */
             color: var(--dark-gray);
-            line-height: 1.6;
-            overflow: hidden;
+            line-height: 1.6;                           /* 1.6 = optimale Lesbarkeit für Fließtext */
+            overflow: hidden;                           /* Verhindert Scrolling des Body (Grid ist 100vh) */
             height: 100vh;
         }
 
-        /* GRID LAYOUT */
+        /* ==================== GRID LAYOUT ==================== */
+        /* NOTIZ: CSS Grid = modernes Layout-System für 2D-Layouts (Zeilen UND Spalten)
+           Alternative: Flexbox (nur 1D), Float (veraltet), Table (semantisch falsch)
+           Grid ist ideal für App-Layouts weil man präzise positionieren kann */
         .parent {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            grid-template-rows: 60px 60px 1fr;
-            gap: 8px;
-            height: 100vh;
+            display: grid;                              /* Aktiviert Grid-Layout */
+            grid-template-columns: repeat(5, 1fr);      /* 5 Spalten, gleich breit (1fr = 1 Fraction) */
+            grid-template-rows: 60px 60px 1fr;          /* 3 Zeilen: Header 60px, Nav 60px, Rest flexibel */
+            gap: 8px;                                   /* Abstand zwischen Grid-Elementen */
+            height: 100vh;                              /* 100vh = 100% der Viewport-Höhe (Browserfenster) */
             padding: 8px;
         }
 
         /* DIV1 - Logo/Name */
+        /* NOTIZ: grid-column: span 2 = nimmt 2 Spalten ein (von 5 gesamt) */
         .div1 {
             grid-column: span 2;
             background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
             border-radius: 8px;
-            display: flex;
-            align-items: center;
+            display: flex;                              /* Flexbox INNERHALB des Grid-Elements */
+            align-items: center;                        /* Vertikale Zentrierung */
             padding: 0 1.5rem;
             color: var(--white);
             box-shadow: var(--shadow-md);
@@ -1338,7 +1347,7 @@
     <div class="admin-login-overlay" id="adminLoginOverlay">
         <div class="admin-login-box">
             <h2>🔐 Admin-Bereich</h2>
-            <input type="password" class="admin-code-input" id="adminCodeInput" placeholder="Code eingeben" maxlength="5" autocomplete="off">
+            <input type="password" class="admin-code-input" id="adminCodeInput" placeholder="Code eingeben" maxlength="6" autocomplete="off">
             <button class="btn btn-primary" onclick="checkAdminCode()">🔓 Entsperren</button>
             <button class="btn btn-cancel" onclick="closeAdminLogin()">Abbrechen</button>
         </div>
@@ -1461,6 +1470,10 @@
     
     <script>
         // ==================== FIREBASE KONFIGURATION ====================
+        // ==================== FIREBASE BACKEND ====================
+        // NOTIZ: Firebase ist eine Backend-as-a-Service (BaaS) Plattform von Google
+        // Vorteil: Kein eigener Server nötig! Firebase übernimmt Datenbank, Hosting, etc.
+        // firebaseConfig enthält die Zugangsdaten für mein Firebase-Projekt
         const firebaseConfig = {
             apiKey: "AIzaSyBmk6-WZp4g-lPfIrZBFMGKUB5SWpEmzdE",
             authDomain: "facharbeit-mtb-und-trails.firebaseapp.com",
@@ -1471,13 +1484,17 @@
             measurementId: "G-C6KBMTZY5W"
         };
 
-        // Firebase initialisieren
+        // Firebase initialisieren und Verbindung herstellen
+        // NOTIZ: db (database) ist die Firestore-Datenbank
+        // Firestore = NoSQL Cloud-Datenbank (speichert Daten als "Dokumente" in "Collections")
         let db = null;
         try {
             firebase.initializeApp(firebaseConfig);
             db = firebase.firestore();
             console.log('✅ Firebase verbunden!');
         } catch (error) {
+            // NOTIZ: Fallback auf Offline-Modus wenn Firebase nicht erreichbar ist
+            // Die App funktioniert dann nur mit LocalStorage (Browser-Speicher)
             console.error('❌ Firebase Fehler:', error);
             alert('⚠️ Firebase-Verbindung fehlgeschlagen. Offline-Modus aktiv.');
         }
@@ -1503,7 +1520,7 @@
         // Admin-System
         // ⚠️ ACHTUNG: Passwort im Klartext (für Testing)
         // TODO: Später zu Firebase Authentication wechseln für echte Sicherheit!
-        const ADMIN_CODE = 'MTB2024'; // Neues sicheres Passwort!
+        const ADMIN_CODE = 'FA2526'; // Admin-Passwort für Facharbeit
         let isAdminLoggedIn = false;
         let markerSuggestions = []; // Vorschläge von Nutzern
         let editingMarkerId = null; // ID des Markers der gerade bearbeitet wird
@@ -1551,18 +1568,26 @@
             })
         };
 
+        // ==================== APP-START ====================
+        // NOTIZ: DOMContentLoaded = Event das feuert wenn HTML komplett geladen ist
+        // WICHTIG: Erst wenn DOM fertig ist, kann man auf HTML-Elemente zugreifen!
+        // Deshalb wartet der Code hier bis alles geladen ist
         document.addEventListener('DOMContentLoaded', () => {
             console.log('DOM geladen - starte Initialisierung');
+            
+            // NOTIZ: setTimeout mit 100ms Verzögerung
+            // Grund: Gibt Browser Zeit alle externen Scripte (Leaflet, Firebase) zu laden
             setTimeout(() => {
-                initMap();
-                loadMarkersFromStorage();
-                setupEventListeners();
-                updateMarkerList();
+                initMap();                  // Karte initialisieren
+                loadMarkersFromStorage();   // Daten aus Firebase/LocalStorage laden
+                setupEventListeners();      // Event-Listener für Buttons etc. registrieren
+                updateMarkerList();         // Sidebar-Liste aktualisieren
                 
-                // Besucher-Zähler erhöhen
+                // Besucher-Zähler erhöhen (für Statistiken)
                 trackPageView();
                 
-                // Admin-Code-Eingabe mit Enter
+                // Admin-Code-Eingabe mit Enter-Taste
+                // NOTIZ: keypress Event = reagiert auf Tastatur-Eingaben
                 const adminCodeInput = document.getElementById('adminCodeInput');
                 if (adminCodeInput) {
                     adminCodeInput.addEventListener('keypress', (e) => {
@@ -1575,11 +1600,18 @@
         function initMap() {
             console.log('Initialisiere Karte...');
             try {
+                // NOTIZ: Leaflet.js ist eine Open-Source JavaScript-Bibliothek für interaktive Karten
+                // L.map() erstellt die Karte im HTML-Element mit id="map"
+                // setView([lat, lng], zoom) setzt die Startposition (hier: Deutschland-Zentrum, Zoom 6)
                 map = L.map('map').setView([51.1657, 10.4515], 6);
+                
+                // NOTIZ: Karten-Layer (Tiles) werden von OpenStreetMap geladen
+                // Ein Layer ist wie eine "Ebene" - man kann zwischen verschiedenen Ansichten wechseln
                 currentLayer = mapLayers.standard;
                 currentLayer.addTo(map);
                 
-                // Maßstab hinzufügen
+                // Maßstab hinzufügen (zeigt Kilometer-Skala)
+                // NOTIZ: Leaflet Controls sind UI-Elemente die auf der Karte platziert werden
                 L.control.scale({
                     position: 'bottomleft',
                     metric: true,
@@ -1587,9 +1619,13 @@
                     maxWidth: 200
                 }).addTo(map);
                 
+                // Event-Listener für Kartenklicks
+                // NOTIZ: Event-Driven Programming - die Funktion onMapClick wird ausgeführt 
+                // wenn der User auf die Karte klickt
                 map.on('click', onMapClick);
                 
                 // Zoom-Event für dynamische Marker-Größe
+                // NOTIZ: Bei jedem Zoom wird updateMarkerSizes aufgerufen um Icons anzupassen
                 map.on('zoomend', updateMarkerSizes);
                 
                 console.log('Karte erfolgreich initialisiert');
@@ -2704,15 +2740,23 @@
             }
         }
 
+        // ==================== MARKER-VORSCHLAG SENDEN ====================
+        // NOTIZ: Diese Funktion wird aufgerufen wenn User auf "📧 Jetzt senden" klickt
+        // User erstellt Vorschlag → geht an Admin → Admin prüft und genehmigt
         function sendMarkerEmail() {
             if (!tempMarkerData) return;
 
+            // Formular-Daten aus Input-Feldern auslesen
+            // NOTIZ: getElementById = holt HTML-Element anhand seiner ID
+            // .value = aktueller Inhalt des Input-Feldes
+            // .trim() = entfernt Leerzeichen am Anfang/Ende
             const type = tempMarkerData.type;
             const name = document.getElementById('markerName').value.trim();
             const difficulty = document.getElementById('markerDifficulty').value;
             const description = document.getElementById('markerDescription').value;
             const typeConfig = markerTypes[type];
 
+            // Validierung: Name ist Pflichtfeld!
             if (!name) {
                 alert('⚠️ Bitte gib einen Namen ein!');
                 return;
@@ -2725,15 +2769,17 @@
             const city = document.getElementById('markerCity').value.trim();
             const country = document.getElementById('markerCountry').value.trim();
 
-            // Vorschlag erstellen
+            // Vorschlag-Objekt erstellen
+            // NOTIZ: JavaScript Object = Datenstruktur mit key:value Paaren
+            // Date.now() = aktuelle Zeit in Millisekunden → wird als eindeutige ID verwendet
             const suggestion = {
                 id: Date.now(),
                 name: name,
                 type: type,
                 difficulty: difficulty,
                 description: description,
-                status: 'pending',
-                createdAt: new Date().toISOString()
+                status: 'pending',                    // Status = wartend auf Admin-Freigabe
+                createdAt: new Date().toISOString()   // ISO-Format: "2024-03-14T18:30:00.000Z"
             };
 
             // Adresse hinzufügen wenn vorhanden
@@ -2768,9 +2814,12 @@
             }
 
             // Zu Firebase hochladen
+            // NOTIZ: db.collection().add() = fügt neues Dokument in Firebase hinzu
+            // Promise-basiert: .then() = erfolgreicher Upload, .catch() = Fehler
             if (db) {
                 db.collection('suggestions').add(suggestion)
                     .then(() => {
+                        // Erfolgreich gespeichert!
                         closeModal();
                         tempMarkerData = null;
                         alert('✅ Dein Vorschlag wurde gesendet!\n\nDer Admin wird ihn prüfen und auf der Karte veröffentlichen.');
@@ -2779,6 +2828,7 @@
                         sendAdminNotification(suggestion);
                     })
                     .catch(error => {
+                        // Fehlerbehandlung: Auch bei Netzwerkfehler nicht verlieren!
                         console.error('Fehler beim Senden:', error);
                         closeModal();
                         tempMarkerData = null;
@@ -2786,6 +2836,7 @@
                     });
             } else {
                 // Offline-Fallback: Lokal speichern
+                // NOTIZ: Graceful Degradation = App funktioniert auch ohne Internet!
                 markerSuggestions.push(suggestion);
                 saveSuggestionsToStorage();
                 closeModal();
@@ -3310,6 +3361,10 @@
             markers.forEach(m => addMarkerToMap(m));
         }
 
+        // ==================== DATEN-SPEICHERUNG ====================
+        // NOTIZ: LocalStorage = Browser-interner Speicher (bleibt auch nach Browser-Schließen erhalten)
+        // Speichert Daten als String (deshalb JSON.stringify nötig)
+        // Vorteil: Offline-Funktionalität! Daten bleiben auch ohne Internet verfügbar
         function saveMarkersToStorage() {
             localStorage.setItem('mtb_markers', JSON.stringify(markers));
         }
@@ -3320,6 +3375,9 @@
                 console.log('🔥 Starte Firebase Echtzeit-Listener für Marker...');
                 
                 // ECHTZEIT-LISTENER: Aktualisiert automatisch bei Änderungen!
+                // NOTIZ: onSnapshot = Realtime Database Feature
+                // Immer wenn sich Daten in Firebase ändern, wird diese Funktion automatisch ausgeführt!
+                // Das ist der Unterschied zu normalem "get()" das nur einmal lädt
                 db.collection('markers')
                     .onSnapshot((snapshot) => {
                         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -3969,28 +4027,38 @@
             }).join('');
         }
 
+        // ==================== ADMIN: MARKER BEARBEITEN ====================
+        // NOTIZ: Diese Funktion ermöglicht dem Admin bestehende Marker zu editieren
+        // Workflow: Admin klickt "✏️ Bearbeiten" → Modal mit vorausgefüllten Feldern → Speichern
         function editMarker(id) {
+            // Array.find() = sucht erstes Element das die Bedingung erfüllt
             const marker = markers.find(m => m.id === id);
             if (!marker) {
                 alert('Marker nicht gefunden!');
                 return;
             }
 
-            // Setze Edit-Modus
+            // Setze Edit-Modus durch globale Variable
+            // NOTIZ: editingMarkerId wird später in saveMarkerChanges() geprüft
             editingMarkerId = id;
 
             // Admin-Dashboard schließen
             closeAdminDashboard();
 
             // Modal öffnen und Felder vorausfüllen
+            // NOTIZ: classList.add('active') = fügt CSS-Klasse hinzu → macht Modal sichtbar
             document.getElementById('markerModal').classList.add('active');
             
-            // Name und Beschreibung
+            // Name und Beschreibung vorausfüllen
+            // NOTIZ: .value = setzt den Inhalt eines Input-Feldes
+            // || '' = Fallback falls Feld leer ist (verhindert "undefined" im Input)
             document.getElementById('markerName').value = marker.name || '';
             document.getElementById('markerDescription').value = marker.description || '';
 
             // Typ setzen
-            tempMarkerData = { ...marker }; // Kopie des Markers
+            // NOTIZ: Spread Operator {...marker} = erstellt Kopie des Objekts
+            // Wichtig: Änderungen am tempMarkerData ändern nicht das Original!
+            tempMarkerData = { ...marker };
             const typeConfig = markerTypes[marker.type];
             document.getElementById('selectedTypeLabel').textContent = `${typeConfig.icon} ${typeConfig.name}`;
 
@@ -4024,26 +4092,34 @@
             updateSingleMarkerInfo();
         }
 
+        // ==================== ADMIN: ÄNDERUNGEN SPEICHERN ====================
+        // NOTIZ: Diese Funktion speichert die bearbeiteten Marker-Daten
+        // Muss sowohl lokales Array ALS AUCH Firebase aktualisieren!
         function saveMarkerChanges() {
             if (!editingMarkerId) return;
 
+            // Geänderte Werte aus Formular auslesen
             const name = document.getElementById('markerName').value.trim();
             const description = document.getElementById('markerDescription').value.trim();
             const difficulty = document.getElementById('markerDifficulty').value;
 
+            // Validierung
             if (!name) {
                 alert('⚠️ Bitte gib einen Namen ein!');
                 return;
             }
 
             // Marker in Array finden und aktualisieren
+            // NOTIZ: findIndex() = gibt Index (Position) des Elements zurück, nicht das Element selbst
+            // Wichtig für direktes Aktualisieren: markers[index].name = ...
             const markerIndex = markers.findIndex(m => m.id === editingMarkerId);
             if (markerIndex === -1) {
                 alert('❌ Marker nicht gefunden!');
                 return;
             }
 
-            // Update Marker-Daten
+            // Update Marker-Daten im lokalen Array
+            // NOTIZ: Direkte Manipulation des Array-Elements
             markers[markerIndex].name = name;
             markers[markerIndex].description = description;
             if (['startpoint', 'route'].includes(markers[markerIndex].type)) {
@@ -4051,6 +4127,7 @@
             }
 
             // In Firebase aktualisieren
+            // NOTIZ: .update() statt .add() → ändert bestehendes Dokument
             if (db) {
                 const markerDoc = markers[markerIndex];
                 const updateData = {
@@ -4067,7 +4144,7 @@
                         // Lokalen Storage aktualisieren
                         saveMarkersToStorage();
                         
-                        // Karte aktualisieren
+                        // Karte aktualisieren (Marker neu rendern)
                         updateMap();
                         updateMarkerList();
                         
