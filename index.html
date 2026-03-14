@@ -2087,7 +2087,7 @@
             }
 
             showGroupOnMapRunning = true;
-            console.log('🗺️ showGroupOnMap() gestartet - GESPERRT');
+            console.log('🗺️ showGroupOnMap() gestartet - GESPERRT für 2 Sekunden');
 
             // Modal minimieren ZUERST
             minimizeGroupModal();
@@ -2168,13 +2168,14 @@
                         padding: [50, 50],
                         maxZoom: 15
                     });
+                    console.log('📏 Karte gezoomt auf Bounds');
                 }
 
-                // Nach 500ms entsperren
+                // Nach 2000ms entsperren (viel länger!)
                 setTimeout(() => {
                     showGroupOnMapRunning = false;
-                    console.log('🔓 showGroupOnMap ENTSPERRT');
-                }, 500);
+                    console.log('🔓 showGroupOnMap ENTSPERRT nach 2 Sekunden');
+                }, 2000);
             }, 150); // 150ms Verzögerung
         }
 
