@@ -4126,23 +4126,27 @@
                 
                 db.collection('markers').doc(docId).update(updateData)
                     .then(() => {
-                        // Lokalen Storage aktualisieren
+                        // 1. Lokalen Storage aktualisieren
                         saveMarkersToStorage();
                         
-                        // Karte aktualisieren (Marker neu rendern)
+                        // 2. Karte aktualisieren (Marker neu rendern)
                         updateMap();
                         updateMarkerList();
                         
-                        // Modal schließen
+                        // 3. ERST Modal schließen und Edit-Modus beenden
                         closeModal();
-                        
-                        // Edit-Modus beenden
                         editingMarkerId = null;
                         
-                        // Zurück zum Admin-Dashboard
-                        openAdminDashboard();
-                        switchAdminTab('markers');
+                        // 4. Kurze Verzögerung, dann Admin-Dashboard öffnen
+                        // NOTIZ: setTimeout verhindert UI-Kollisionen zwischen Modal-Schließen und Dashboard-Öffnen
+                        setTimeout(() => {
+                            openAdminDashboard();
+                            setTimeout(() => {
+                                switchAdminTab('markers');
+                            }, 50);
+                        }, 100);
                         
+                        // 5. Erfolgs-Meldung
                         alert('✅ Marker erfolgreich aktualisiert!');
                     })
                     .catch(error => {
@@ -4153,10 +4157,18 @@
                         saveMarkersToStorage();
                         updateMap();
                         updateMarkerList();
+                        
+                        // Modal schließen
                         closeModal();
                         editingMarkerId = null;
-                        openAdminDashboard();
-                        switchAdminTab('markers');
+                        
+                        // Zurück zum Admin-Dashboard
+                        setTimeout(() => {
+                            openAdminDashboard();
+                            setTimeout(() => {
+                                switchAdminTab('markers');
+                            }, 50);
+                        }, 100);
                         
                         alert('⚠️ Lokal aktualisiert, aber Firebase-Fehler:\n' + error.message);
                     });
@@ -4165,10 +4177,19 @@
                 saveMarkersToStorage();
                 updateMap();
                 updateMarkerList();
+                
+                // Modal schließen
                 closeModal();
                 editingMarkerId = null;
-                openAdminDashboard();
-                switchAdminTab('markers');
+                
+                // Zurück zum Admin-Dashboard
+                setTimeout(() => {
+                    openAdminDashboard();
+                    setTimeout(() => {
+                        switchAdminTab('markers');
+                    }, 50);
+                }, 100);
+                
                 alert('✅ Marker lokal aktualisiert!');
             }
         }
