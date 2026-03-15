@@ -3312,34 +3312,23 @@
             
             // Admin-Liste SOFORT und DIREKT aktualisieren
             const adminDashboard = document.getElementById('adminDashboard');
-            const adminMarkerList = document.getElementById('adminMarkerList');
-            console.log('🔍 Admin Marker List gefunden?', !!adminMarkerList);
             
             if (adminDashboard && adminDashboard.classList.contains('active')) {
-                console.log('🔄 Rufe updateAdminMarkerList auf...');
                 updateAdminMarkerList();
-                console.log('✅ updateAdminMarkerList abgeschlossen');
                 
                 // FORCE UPDATE - setze totalMarkerCount nochmal
                 const countElement = document.getElementById('totalMarkerCount');
                 if (countElement) {
                     countElement.textContent = markers.length;
-                    console.log('✅ totalMarkerCount aktualisiert:', markers.length);
                 }
             }
             
             // Auch aus Firebase löschen (im Hintergrund)
             if (db && marker.firebaseId) {
-                console.log('🔥 Lösche aus Firebase:', marker.firebaseId);
                 db.collection('markers').doc(marker.firebaseId).delete()
-                    .then(() => {
-                        console.log('✅ Firebase-Löschung erfolgreich');
-                    })
                     .catch(error => {
                         console.error('❌ Firebase Lösch-Fehler:', error);
                     });
-            } else {
-                console.warn('⚠️ Kein Firebase ID - nur lokal gelöscht');
             }
         }
 
@@ -4120,6 +4109,7 @@
 
             // In Firebase aktualisieren
             // NOTIZ: .update() statt .add() → ändert bestehendes Dokument
+            // WICHTIG: firebaseId verwenden (nicht die lokale id!)
             if (db) {
                 const markerDoc = markers[markerIndex];
                 const updateData = {
@@ -4131,7 +4121,10 @@
                     updateData.difficulty = difficulty;
                 }
 
-                db.collection('markers').doc(markerDoc.id.toString()).update(updateData)
+                // Prüfe ob Firebase-ID vorhanden ist
+                const docId = markerDoc.firebaseId || markerDoc.id.toString();
+                
+                db.collection('markers').doc(docId).update(updateData)
                     .then(() => {
                         // Lokalen Storage aktualisieren
                         saveMarkersToStorage();
@@ -4154,6 +4147,7 @@
                     })
                     .catch(error => {
                         console.error('Fehler beim Aktualisieren:', error);
+                        console.error('Document ID war:', docId);
                         
                         // Auch bei Fehler lokal speichern
                         saveMarkersToStorage();
