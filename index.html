@@ -4137,17 +4137,16 @@
                         closeModal();
                         editingMarkerId = null;
                         
-                        // 4. Kurze Verzögerung, dann Admin-Dashboard öffnen
+                        // 4. Kurze Verzögerung, dann Admin-Dashboard öffnen + Erfolgs-Meldung
                         // NOTIZ: setTimeout verhindert UI-Kollisionen zwischen Modal-Schließen und Dashboard-Öffnen
                         setTimeout(() => {
                             openAdminDashboard();
                             setTimeout(() => {
                                 switchAdminTab('markers');
+                                // Erfolgs-Meldung ERST ganz am Ende
+                                alert('✅ Marker erfolgreich aktualisiert!');
                             }, 50);
                         }, 100);
-                        
-                        // 5. Erfolgs-Meldung
-                        alert('✅ Marker erfolgreich aktualisiert!');
                     })
                     .catch(error => {
                         console.error('Fehler beim Aktualisieren:', error);
@@ -4167,10 +4166,10 @@
                             openAdminDashboard();
                             setTimeout(() => {
                                 switchAdminTab('markers');
+                                // Error-Meldung am Ende
+                                alert('⚠️ Lokal aktualisiert, aber Firebase-Fehler:\n' + error.message);
                             }, 50);
                         }, 100);
-                        
-                        alert('⚠️ Lokal aktualisiert, aber Firebase-Fehler:\n' + error.message);
                     });
             } else {
                 // Offline: Nur lokal speichern
@@ -4187,10 +4186,10 @@
                     openAdminDashboard();
                     setTimeout(() => {
                         switchAdminTab('markers');
+                        // Erfolgs-Meldung am Ende
+                        alert('✅ Marker lokal aktualisiert!');
                     }, 50);
                 }, 100);
-                
-                alert('✅ Marker lokal aktualisiert!');
             }
         }
 
