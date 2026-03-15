@@ -3409,8 +3409,7 @@
                         saveMarkersToStorage();
                     }, (error) => {
                         console.error('❌ Firebase Echtzeit-Listener Fehler:', error);
-                    });
-                        // Fallback: Von localStorage laden
+                        // Bei Fehler: Fallback auf LocalStorage
                         loadFromLocalStorage();
                     });
             } else {
