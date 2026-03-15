@@ -1469,7 +1469,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     
     <script>
-        // ==================== FIREBASE KONFIGURATION ====================
         // ==================== FIREBASE BACKEND ====================
         // NOTIZ: Firebase ist eine Backend-as-a-Service (BaaS) Plattform von Google
         // Vorteil: Kein eigener Server nötig! Firebase übernimmt Datenbank, Hosting, etc.
@@ -1527,6 +1526,10 @@
         
         const ADMIN_EMAIL = 'Lenardo.krueger@icloud.com';
 
+        // ==================== MARKER-TYPEN & KONFIGURATION ====================
+        // NOTIZ: Object als "Lookup-Table" / "Dictionary"
+        // Vorteil: Zugriff über Key z.B. markerTypes['trail'] statt if/else-Ketten
+        // Jeder Typ hat: name (deutsch), icon (Emoji), color (Hex-Code für Styling)
         const markerTypes = {
             trail: { name: 'Trail', icon: '🚵', color: '#4a7c2c' },
             danger: { name: 'Gefahrenstelle', icon: '⚠️', color: '#dc2626' },
@@ -1537,13 +1540,18 @@
             route: { name: 'Strecke', icon: '📍', color: '#8b5cf6' }
         };
 
+        // Schwierigkeitsgrade-Farben
         const difficultyColors = {
-            easy: '#22c55e',
-            medium: '#3b82f6',
-            hard: '#ef4444',
-            extreme: '#000000'
+            easy: '#22c55e',      // Grün
+            medium: '#3b82f6',    // Blau
+            hard: '#ef4444',      // Rot
+            extreme: '#000000'    // Schwarz
         };
 
+        // ==================== KARTEN-LAYER ====================
+        // NOTIZ: Leaflet Tile Layers = verschiedene Kartenansichten
+        // Tiles = kleine Bildkacheln die zusammen die Karte ergeben
+        // {z}/{x}/{y} = Zoom-Level / X-Koordinate / Y-Koordinate (URL-Template)
         const mapLayers = {
             standard: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap',
@@ -1553,6 +1561,7 @@
                 attribution: '© Esri',
                 maxZoom: 19
             }),
+            // NOTIZ: L.layerGroup = kombiniert mehrere Layer (Satellit + Straßen-Overlay)
             hybrid: L.layerGroup([
                 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                     maxZoom: 19
@@ -2075,35 +2084,23 @@
         }
 
         function closeModal() {
-            console.log('🚪 closeModal() aufgerufen');
-            console.log('   routeMode:', routeMode);
-            console.log('   tempMarkerData:', tempMarkerData);
-            console.log('   tempPolyline:', tempPolyline);
-            console.log('   tempRouteMarkers:', tempRouteMarkers.length);
-            
+        function closeModal() {
             document.getElementById('markerModal').classList.remove('active');
             
             // Route-Vorschau entfernen (auch wenn routeMode bereits false ist)
             if (routeMode || (tempMarkerData && tempMarkerData.isRoute)) {
-                console.log('❌ Route abgebrochen - Modal geschlossen');
                 routeMode = false;
                 routePoints = [];
                 
                 // Temporäre Linie entfernen
                 if (tempPolyline) {
-                    console.log('🗑️ Entferne tempPolyline');
                     map.removeLayer(tempPolyline);
                     tempPolyline = null;
-                } else {
-                    console.log('⚠️ tempPolyline ist null!');
                 }
                 
                 // Alle Punkt-Marker entfernen
-                console.log('🗑️ Entferne', tempRouteMarkers.length, 'Punkt-Marker');
                 tempRouteMarkers.forEach(marker => map.removeLayer(marker));
                 tempRouteMarkers = [];
-            } else {
-                console.log('ℹ️ Keine Route zu entfernen');
             }
             
             // Alles zurücksetzen
@@ -2129,8 +2126,6 @@
             
             // Sidebar-Info verstecken
             document.getElementById('activeSingleMarkerInfo').style.display = 'none';
-            
-            console.log('✅ closeModal() abgeschlossen');
         }
 
         function autoExpandTextarea(e) {
@@ -2314,6 +2309,9 @@
                 return;
             }
 
+            // NOTIZ: .map() = Array-Methode die jedes Element transformiert und neues Array zurückgibt
+            // Hier: Jedes item wird zu HTML-String konvertiert → perfekt für dynamische UI!
+            // .join('') = verbindet alle HTML-Strings zu einem einzigen String
             container.innerHTML = currentGroup.items.map((item, index) => {
                 const typeConfig = markerTypes[item.type];
                 let coordInfo = '';
@@ -2324,6 +2322,8 @@
                     coordInfo = `📍 ${item.lat.toFixed(5)}, ${item.lng.toFixed(5)}`;
                 }
 
+                // NOTIZ: Template Literal (backticks ``) ermöglicht mehrzeilige Strings + Variablen mit ${}
+                // Sehr praktisch für HTML-Generierung! Lesbar und wartbar.
                 return `
                     <div class="group-item-card">
                         <div class="group-item-header">
@@ -2354,17 +2354,14 @@
             }
 
             showGroupOnMapRunning = true;
-            console.log('🗺️ showGroupOnMap() gestartet - GESPERRT für 2 Sekunden');
 
             // Modal SCHLIEßEN
             document.getElementById('groupOverviewModal').classList.remove('active');
-            console.log('🚪 Modal geschlossen');
             
             // Sidebar-Kontrollen ANZEIGEN
             const activeGroupInfo = document.getElementById('activeGroupInfo');
             if (activeGroupInfo) {
                 activeGroupInfo.style.display = 'block';
-                console.log('📋 Sidebar-Kontrollen angezeigt');
             }
 
             // Kurze Verzögerung damit Modal geschlossen ist
@@ -3011,6 +3008,9 @@
             const typeConfig = markerTypes[marker.type];
 
             // Sammle alle Marker der gleichen Gruppe
+            // NOTIZ: .filter() = Array-Methode die nur Elemente behält die Bedingung erfüllen
+            // Hier: Alle Marker MIT gleicher groupId ABER OHNE den aktuellen Marker (m.id !== markerId)
+            // Arrow Function: m => ... ist Kurzform für function(m) { return ... }
             let groupMarkers = [];
             if (marker.groupId) {
                 groupMarkers = markers.filter(m => m.groupId === marker.groupId && m.id !== markerId);
@@ -3292,15 +3292,11 @@
         }
 
         function deleteMarker(id) {
-            console.log('🗑️ deleteMarker aufgerufen für ID:', id);
-            
             if (!confirm('Marker wirklich löschen?\n\n⚠️ Nur als Admin: Dies löscht den Marker dauerhaft!')) {
-                console.log('❌ Löschen abgebrochen');
                 return;
             }
             
             const marker = markers.find(m => m.id === id);
-            console.log('📍 Zu löschender Marker:', marker);
             
             if (!marker) {
                 console.error('❌ Marker nicht gefunden!');
@@ -3308,9 +3304,7 @@
             }
             
             // SOFORT aus lokalem Array entfernen
-            const vorher = markers.length;
             markers = markers.filter(m => m.id !== id);
-            console.log(`📊 Marker Array: ${vorher} → ${markers.length}`);
             
             // Alle UIs sofort aktualisieren
             saveMarkersToStorage();
@@ -3320,8 +3314,6 @@
             // Admin-Liste SOFORT und DIREKT aktualisieren
             const adminDashboard = document.getElementById('adminDashboard');
             const adminMarkerList = document.getElementById('adminMarkerList');
-            
-            console.log('🔍 Admin Dashboard aktiv?', adminDashboard?.classList.contains('active'));
             console.log('🔍 Admin Marker List gefunden?', !!adminMarkerList);
             
             if (adminDashboard && adminDashboard.classList.contains('active')) {
@@ -3380,19 +3372,16 @@
                 // Das ist der Unterschied zu normalem "get()" das nur einmal lädt
                 db.collection('markers')
                     .onSnapshot((snapshot) => {
-                        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-                        console.log('🔄 MARKER-ÄNDERUNG ERKANNT VON FIREBASE');
-                        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-                        console.log('📊 Snapshot-Größe:', snapshot.size);
-                        console.log('📊 Vorherige Marker-Anzahl:', markers.length);
+                        // NOTIZ für Facharbeit: Dieser Log zeigt dass Realtime-Sync funktioniert
+                        console.log('🔄 Firebase Realtime-Update:', snapshot.size, 'Marker geladen');
                         
                         markers = [];
                         
                         snapshot.forEach(doc => {
                             const data = doc.data();
-                            console.log('📄 Lade Marker:', doc.id, '-', data.name);
                             
                             // Konvertiere pointsString zurück zu Array
+                            // NOTIZ: Firebase kann keine nested Arrays speichern, deshalb String-Format
                             if (data.isRoute && data.pointsString) {
                                 data.points = data.pointsString.split('|').map(p => {
                                     const [lat, lng] = p.split(',').map(parseFloat);
@@ -3406,9 +3395,6 @@
                             });
                         });
                         
-                        console.log('✅ Neue Marker-Anzahl:', markers.length);
-                        console.log('🔄 Aktualisiere UI...');
-                        
                         // Karte komplett neu laden
                         reloadMap();
                         updateMarkerList();
@@ -3416,17 +3402,14 @@
                         // Admin-Liste auch aktualisieren wenn offen
                         const adminDashboard = document.getElementById('adminDashboard');
                         if (adminDashboard && adminDashboard.classList.contains('active')) {
-                            console.log('🔄 Admin-Dashboard ist offen - aktualisiere Liste');
                             updateAdminMarkerList();
                         }
                         
                         // Auch lokal speichern als Backup
                         saveMarkersToStorage();
-                        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
                     }, (error) => {
                         console.error('❌ Firebase Echtzeit-Listener Fehler:', error);
-                        console.error('❌ Error Code:', error.code);
-                        console.error('❌ Error Message:', error.message);
+                    });
                         // Fallback: Von localStorage laden
                         loadFromLocalStorage();
                     });
@@ -3622,10 +3605,16 @@
             }, 300);
         }
 
+        // ==================== SUCHE ====================
+        // NOTIZ: async function = Funktion die asynchron läuft (wartet auf externe Daten)
+        // Ermöglicht "await" = pausiert Funktion bis Promise fertig ist
+        // Wichtig bei API-Aufrufen, Datei-Uploads, Datenbank-Queries
         async function performSearch(query) {
             const results = [];
 
             // 1. Koordinaten-Suche
+            // NOTIZ: RegEx (Regular Expression) = Muster zum Text-Matching
+            // \d+ = eine oder mehr Ziffern, \.? = optionaler Punkt, [,\s]+ = Komma oder Leerzeichen
             const coordMatch = query.match(/(-?\d+\.?\d*)[,\s]+(-?\d+\.?\d*)/);
             if (coordMatch) {
                 const lat = parseFloat(coordMatch[1]);
@@ -3665,16 +3654,21 @@
             });
 
             // 3. Geocoding-Suche (Städte/Orte)
+            // NOTIZ: fetch() = moderne Web API für HTTP-Requests (ersetzt jQuery.ajax)
+            // await = wartet bis fetch() fertig ist (sonst würde Code sofort weiterlaufen!)
+            // try/catch = Fehlerbehandlung falls Netzwerk-Fehler auftritt
             try {
                 const response = await fetch(
                     `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`,
                     {
                         headers: {
-                            'User-Agent': 'MTB-Trails-App'
+                            'User-Agent': 'MTB-Trails-App'  // Nominatim erfordert User-Agent
                         }
                     }
                 );
 
+                // NOTIZ: .json() ist auch async → braucht await!
+                // Konvertiert Response-Body von JSON-String zu JavaScript-Objekt
                 const data = await response.json();
 
                 data.forEach(result => {
