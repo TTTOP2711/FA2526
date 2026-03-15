@@ -4130,7 +4130,7 @@
                         saveMarkersToStorage();
                         
                         // 2. Karte aktualisieren (Marker neu rendern)
-                        updateMap();
+                        reloadMap();
                         updateMarkerList();
                         
                         // 3. ERST Modal schließen und Edit-Modus beenden
@@ -4154,7 +4154,7 @@
                         
                         // Auch bei Fehler lokal speichern
                         saveMarkersToStorage();
-                        updateMap();
+                        reloadMap();
                         updateMarkerList();
                         
                         // Modal schließen
@@ -4174,7 +4174,7 @@
             } else {
                 // Offline: Nur lokal speichern
                 saveMarkersToStorage();
-                updateMap();
+                reloadMap();
                 updateMarkerList();
                 
                 // Modal schließen
